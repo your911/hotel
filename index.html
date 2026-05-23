@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aurelius — Where Time Dissolves</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ─── RESET & ROOT ────────────────────────────────────── */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+:root {
+  --cream:    #FAF7F2;
+  --warm-white: #FDFBF8;
+  --beige:    #EDE8DE;
+  --sand:     #D9CEBC;
+  --gold:     #C8A96E;
+  --gold-light:#E2C990;
+  --brown:    #8B7355;
+  --dark:     #2C2418;
+  --text:     #3D3328;
+  --muted:    #8A7D6B;
+  --glass-bg: rgba(253,251,248,0.72);
+  --font-display: 'Cormorant Garamond', serif;
+  --font-body:    'Jost', sans-serif;
+  --ease-smooth: cubic-bezier(0.25,0.46,0.45,0.94);
+  --ease-out:    cubic-bezier(0.16,1,0.3,1);
+}
+html { scroll-behavior: smooth; overflow-x: hidden; }
+body {
+  background: var(--cream);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-weight: 300;
+  letter-spacing: 0.02em;
+  overflow-x: hidden;
+  cursor: none;
+}
+::selection { background: var(--gold-light); color: var(--dark); }
+
+/* ─── CUSTOM CURSOR ───────────────────────────────────── */
+#cursor {
+  position: fixed; top:0; left:0; width:10px; height:10px;
+  background: var(--gold); border-radius:50%; pointer-events:none;
+  z-index:9999; transform: translate(-50%,-50%);
+  transition: transform 0.1s, opacity 0.2s;
+  mix-blend-mode: multiply;
+}
+#cursor-ring {
+  position:fixed; top:0; left:0; width:36px; height:36px;
+  border: 1px solid rgba(200,169,110,0.5); border-radius:50%;
+  pointer-events:none; z-index:9998;
+  transform: translate(-50%,-50%);
+  transition: transform 0.35s var(--ease-smooth), width 0.4s var(--ease-out), height 0.4s var(--ease-out), border-color 0.3s;
+}
+body:has(a:hover) #cursor-ring,
+body:has(button:hover) #cursor-ring { width:60px; height:60px; border-color: var(--gold); }
+
+/* ─── LOADER ──────────────────────────────────────────── */
+#loader {
+  position:fixed; inset:0; z-index:10000;
+  background: var(--dark);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:2rem;
+  transition: opacity 0.8s var(--ease-smooth), visibility 0.8s;
+}
+#loader.hide { opacity:0; visibility:hidden; }
+.loader-logo {
+  font-family: var(--font-display); color: var(--gold-light);
+  font-size: clamp(2.4rem, 6vw, 4rem); font-weight: 300; letter-spacing:0.3em;
+  opacity:0; animation: fadeUp 0.9s 0.3s var(--ease-out) forwards;
+}
+.loader-line {
+  width:0; height:1px; background: var(--gold);
+  animation: lineExpand 1.2s 0.8s var(--ease-out) forwards;
+}
+.loader-sub {
+  font-family: var(--font-body); color: rgba(226,201,144,0.6);
+  font-size:0.65rem; letter-spacing:0.4em; text-transform:uppercase;
+  opacity:0; animation: fadeUp 0.7s 1.2s var(--ease-out) forwards;
+}
+.loader-counter {
+  position:absolute; bottom:2.5rem; right:3rem;
+  font-family: var(--font-display); font-size:2.5rem; color: rgba(200,169,110,0.3);
+  font-weight:300;
+}
+@keyframes fadeUp   { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:none} }
+@keyframes lineExpand{ from{width:0} to{width:120px} }
+
+/* ─── NAVBAR ──────────────────────────────────────────── */
+nav {
+  position:fixed; top:0; left:0; right:0; z-index:1000;
+  padding: 1.8rem 4rem;
+  display:flex; align-items:center; justify-content:space-between;
+  backdrop-filter: blur(20px) saturate(1.4);
+  background: var(--glass-bg);
+  border-bottom: 1px solid rgba(200,169,110,0.12);
+  transition: padding 0.4s var(--ease-smooth), background 0.4s;
+}
+nav.scrolled { padding: 1.1rem 4rem; background: rgba(250,247,242,0.92); }
+.nav-logo {
+  font-family: var(--font-display); font-size:1.55rem;
+  font-weight:400; letter-spacing:0.25em; color: var(--dark);
+  text-decoration:none;
+}
+.nav-logo span { color: var(--gold); }
+.nav-links { display:flex; gap:2.8rem; list-style:none; }
+.nav-links a {
+  font-size:0.68rem; letter-spacing:0.18em; text-transform:uppercase;
+  color: var(--muted); text-decoration:none;
+  position:relative; transition: color 0.3s;
+}
+.nav-links a::after {
+  content:''; position:absolute; bottom:-4px; left:0; width:0; height:1px;
+  background: var(--gold); transition: width 0.4s var(--ease-smooth);
+}
+.nav-links a:hover { color: var(--dark); }
+.nav-links a:hover::after { width:100%; }
+.nav-cta {
+  background: var(--dark); color: var(--gold-light) !important;
+  padding: 0.7rem 1.8rem !important; border-radius:50px;
+  font-size:0.65rem !important; letter-spacing:0.15em !important;
+  transition: background 0.3s, transform 0.3s !important;
+}
+.nav-cta:hover { background: var(--gold) !important; color: var(--dark) !important; transform: translateY(-1px); }
+.nav-cta::after { display:none !important; }
+.nav-hamburger { display:none; flex-direction:column; gap:5px; cursor:none; }
+.nav-hamburger span { width:26px; height:1px; background: var(--dark); transition:0.3s; }
+
+/* ─── HERO ────────────────────────────────────────────── */
+#hero {
+  height:100vh; position:relative; overflow:hidden;
+  display:flex; align-items:center; justify-content:center;
+}
+.hero-bg {
+  position:absolute; inset:0;
+  background: linear-gradient(160deg,
+    #2C2418 0%,
+    #3d2f1e 30%,
+    #5c4433 55%,
+    #8B7355 75%,
+    #C8A96E 100%
+  );
+}
+.hero-grid-overlay {
+  position:absolute; inset:0; opacity:0.04;
+  background-image:
+    linear-gradient(var(--gold) 1px, transparent 1px),
+    linear-gradient(90deg, var(--gold) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+.hero-orb {
+  position:absolute; border-radius:50%; filter:blur(80px); pointer-events:none;
+}
+.hero-orb-1 {
+  width:600px; height:600px; top:10%; right:-10%;
+  background: radial-gradient(circle, rgba(200,169,110,0.25) 0%, transparent 70%);
+  animation: orbFloat 8s ease-in-out infinite;
+}
+.hero-orb-2 {
+  width:400px; height:400px; bottom:-10%; left:-5%;
+  background: radial-gradient(circle, rgba(139,115,85,0.2) 0%, transparent 70%);
+  animation: orbFloat 10s ease-in-out infinite reverse;
+}
+@keyframes orbFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-30px)} }
+
+.hero-content {
+  position:relative; z-index:2; text-align:center; padding:0 2rem;
+  opacity:0; animation: heroReveal 1.4s 2.2s var(--ease-out) forwards;
+}
+@keyframes heroReveal { from{opacity:0;transform:translateY(40px)} to{opacity:1;transform:none} }
+.hero-eyebrow {
+  font-family: var(--font-body); font-size:0.6rem; letter-spacing:0.5em;
+  text-transform:uppercase; color: var(--gold-light); margin-bottom:2rem;
+  display:flex; align-items:center; justify-content:center; gap:1.5rem;
+}
+.hero-eyebrow::before, .hero-eyebrow::after {
+  content:''; width:40px; height:1px; background: rgba(200,169,110,0.5);
+}
+.hero-title {
+  font-family: var(--font-display); font-size: clamp(4rem,10vw,9rem);
+  font-weight:300; line-height:0.92; color: var(--cream);
+  margin-bottom:2rem; letter-spacing:-0.01em;
+}
+.hero-title em { display:block; font-style:italic; color: var(--gold-light); }
+.hero-subtitle {
+  font-family: var(--font-body); color: rgba(250,247,242,0.5);
+  font-size:0.85rem; letter-spacing:0.15em; max-width:420px;
+  margin:0 auto 3.5rem;
+}
+.hero-btn-group { display:flex; gap:1.2rem; justify-content:center; flex-wrap:wrap; }
+.btn-primary {
+  background: var(--gold); color: var(--dark);
+  padding: 1rem 2.8rem; border:none; border-radius:50px;
+  font-family: var(--font-body); font-size:0.68rem;
+  letter-spacing:0.18em; text-transform:uppercase;
+  cursor:none; transition: transform 0.3s var(--ease-out), box-shadow 0.3s;
+  text-decoration:none; display:inline-block;
+}
+.btn-primary:hover { transform:translateY(-3px); box-shadow:0 12px 40px rgba(200,169,110,0.4); }
+.btn-outline {
+  background: transparent; color: var(--cream);
+  padding: 1rem 2.8rem; border:1px solid rgba(250,247,242,0.3);
+  border-radius:50px; font-family: var(--font-body); font-size:0.68rem;
+  letter-spacing:0.18em; text-transform:uppercase; cursor:none;
+  transition: border-color 0.3s, background 0.3s;
+  text-decoration:none; display:inline-block;
+}
+.btn-outline:hover { border-color: var(--gold-light); background: rgba(200,169,110,0.1); }
+.hero-scroll {
+  position:absolute; bottom:3rem; left:50%; transform:translateX(-50%);
+  display:flex; flex-direction:column; align-items:center; gap:0.8rem;
+  color: rgba(250,247,242,0.4); font-size:0.55rem; letter-spacing:0.35em;
+  text-transform:uppercase; z-index:2;
+  animation: fadeUp 1s 3s var(--ease-out) both;
+}
+.scroll-line {
+  width:1px; height:50px;
+  background: linear-gradient(to bottom, rgba(200,169,110,0.6), transparent);
+  animation: scrollPulse 2s ease-in-out infinite;
+}
+@keyframes scrollPulse { 0%,100%{transform:scaleY(1);opacity:0.6} 50%{transform:scaleY(0.6);opacity:1} }
+.hero-stats {
+  position:absolute; bottom:3rem; right:4rem; z-index:2;
+  display:flex; gap:3rem;
+  animation: fadeUp 1s 3.2s var(--ease-out) both;
+}
+.stat { text-align:right; }
+.stat-num { font-family: var(--font-display); font-size:2rem; color: var(--gold-light); font-weight:300; }
+.stat-label { font-size:0.55rem; letter-spacing:0.3em; color: rgba(250,247,242,0.4); text-transform:uppercase; }
+
+/* ─── SECTION BASE ────────────────────────────────────── */
+section { padding: 8rem 0; }
+.container { max-width:1320px; margin:0 auto; padding:0 4rem; }
+.section-eyebrow {
+  font-size:0.6rem; letter-spacing:0.45em; text-transform:uppercase;
+  color: var(--gold); margin-bottom:1.2rem;
+  display:flex; align-items:center; gap:1rem;
+}
+.section-eyebrow::before { content:''; width:24px; height:1px; background: var(--gold); }
+.section-title {
+  font-family: var(--font-display); font-size: clamp(2.8rem,5vw,5rem);
+  font-weight:300; line-height:1.05; color: var(--dark);
+  margin-bottom:1.5rem;
+}
+.section-title em { font-style:italic; color: var(--brown); }
+.section-lead {
+  font-size:0.9rem; color: var(--muted); max-width:480px;
+  line-height:1.9; letter-spacing:0.04em;
+}
+
+/* ─── ABOUT STRIP ─────────────────────────────────────── */
+#about {
+  background: var(--dark); color: var(--cream); padding:6rem 0;
+  overflow:hidden;
+}
+.about-inner {
+  display:grid; grid-template-columns:1fr 1fr; gap:6rem; align-items:center;
+}
+.about-text .section-eyebrow { color: var(--gold-light); }
+.about-text .section-eyebrow::before { background: var(--gold-light); }
+.about-text .section-title { color: var(--cream); }
+.about-text .section-title em { color: var(--gold-light); }
+.about-text .section-lead { color: rgba(250,247,242,0.55); max-width:100%; }
+.about-visual {
+  position:relative; height:520px;
+}
+.about-card {
+  position:absolute; border-radius:24px; overflow:hidden;
+  background: linear-gradient(135deg, #5c4433, #8B7355);
+}
+.about-card-main {
+  width:75%; height:100%; right:0; top:0;
+  background: linear-gradient(160deg, #3d2f1e 0%, #8B7355 50%, #C8A96E 100%);
+  display:flex; align-items:flex-end; padding:2.5rem;
+}
+.about-card-accent {
+  width:55%; height:55%; left:0; bottom:0;
+  background: rgba(200,169,110,0.12); border:1px solid rgba(200,169,110,0.2);
+  backdrop-filter:blur(10px); display:flex; flex-direction:column;
+  justify-content:center; padding:2rem;
+}
+.about-award {
+  font-family: var(--font-display); font-size:1.8rem; color: var(--gold-light); margin-bottom:0.3rem;
+}
+.about-award-label { font-size:0.6rem; letter-spacing:0.3em; color: rgba(226,201,144,0.6); text-transform:uppercase; }
+.about-quote { font-family: var(--font-display); font-size:1.2rem; font-style:italic; color: rgba(250,247,242,0.7); }
+
+/* ─── ROOMS ───────────────────────────────────────────── */
+#rooms { background: var(--warm-white); }
+.rooms-header { display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:4rem; }
+.rooms-grid {
+  display:grid; grid-template-columns:1.5fr 1fr 1fr; gap:1.5rem; align-items:start;
+}
+.room-card {
+  border-radius:20px; overflow:hidden; background: var(--beige);
+  position:relative; cursor:none;
+  transition: transform 0.5s var(--ease-out), box-shadow 0.5s;
+}
+.room-card:hover { transform:translateY(-8px); box-shadow:0 30px 60px rgba(44,36,24,0.15); }
+.room-card.featured { grid-row: span 2; }
+.room-visual {
+  width:100%; background: linear-gradient(160deg, #3d2f1e, #8B7355);
+  position:relative; overflow:hidden;
+}
+.room-card.featured .room-visual { height:420px; }
+.room-visual { height:240px; }
+.room-pattern {
+  position:absolute; inset:0; opacity:0.08;
+  background-image: radial-gradient(circle at 30% 50%, var(--gold-light) 0%, transparent 50%),
+    radial-gradient(circle at 70% 20%, #C8A96E 0%, transparent 40%);
+}
+.room-overlay {
+  position:absolute; inset:0;
+  background: linear-gradient(to top, rgba(44,36,24,0.7) 0%, transparent 50%);
+}
+.room-tag {
+  position:absolute; top:1.2rem; left:1.2rem; z-index:2;
+  background: rgba(253,251,248,0.15); backdrop-filter:blur(8px);
+  border: 1px solid rgba(255,255,255,0.2); color:#fff;
+  font-size:0.55rem; letter-spacing:0.3em; text-transform:uppercase;
+  padding:0.4rem 1rem; border-radius:50px;
+}
+.room-price {
+  position:absolute; bottom:1.2rem; right:1.2rem; z-index:2;
+  font-family: var(--font-display); color: var(--gold-light); font-size:1.3rem;
+}
+.room-price span { font-size:0.65rem; color: rgba(226,201,144,0.7); }
+.room-info { padding:1.8rem; }
+.room-name { font-family: var(--font-display); font-size:1.5rem; color: var(--dark); margin-bottom:0.4rem; }
+.room-desc { font-size:0.78rem; color: var(--muted); line-height:1.7; }
+.room-features {
+  display:flex; gap:1.2rem; margin-top:1.2rem; flex-wrap:wrap;
+}
+.room-feature { font-size:0.6rem; letter-spacing:0.2em; text-transform:uppercase; color: var(--brown); }
+.room-feature::before { content:'✦ '; opacity:0.6; }
+
+/* ─── GALLERY ─────────────────────────────────────────── */
+#gallery { background: var(--cream); overflow:hidden; }
+.gallery-heading { text-align:center; margin-bottom:4rem; }
+.gallery-heading .section-lead { margin:0 auto; text-align:center; }
+.gallery-track {
+  display:flex; gap:1.5rem; width:max-content;
+  animation: galleryScroll 30s linear infinite;
+}
+.gallery-track:hover { animation-play-state:paused; }
+.gallery-cell {
+  width:320px; height:420px; border-radius:20px; overflow:hidden; flex-shrink:0;
+  cursor:none; position:relative;
+}
+.gallery-cell-inner {
+  width:100%; height:100%;
+  background: linear-gradient(160deg, #3d2f1e, #8B7355);
+  position:relative; overflow:hidden;
+  transition: transform 0.6s var(--ease-out);
+}
+.gallery-cell:hover .gallery-cell-inner { transform:scale(1.04); }
+.gallery-cell-pattern {
+  position:absolute; inset:0; opacity:0.1;
+}
+.gallery-cell:nth-child(1) .gallery-cell-inner { background: linear-gradient(135deg,#2C2418,#7a6045); }
+.gallery-cell:nth-child(2) .gallery-cell-inner { background: linear-gradient(135deg,#5c4433,#C8A96E); }
+.gallery-cell:nth-child(3) .gallery-cell-inner { background: linear-gradient(135deg,#8B7355,#EDE8DE); }
+.gallery-cell:nth-child(4) .gallery-cell-inner { background: linear-gradient(135deg,#3d2f1e,#8B7355); }
+.gallery-cell:nth-child(5) .gallery-cell-inner { background: linear-gradient(135deg,#7a6045,#E2C990); }
+.gallery-cell:nth-child(6) .gallery-cell-inner { background: linear-gradient(135deg,#2C2418,#5c4433); }
+.gallery-cell:nth-child(7) .gallery-cell-inner { background: linear-gradient(135deg,#C8A96E,#EDE8DE); }
+.gallery-cell:nth-child(8) .gallery-cell-inner { background: linear-gradient(135deg,#5c4433,#3d2f1e); }
+.gallery-label {
+  position:absolute; bottom:0; left:0; right:0; padding:2rem 1.5rem;
+  background: linear-gradient(to top, rgba(44,36,24,0.85) 0%, transparent 100%);
+  color: var(--cream); font-family: var(--font-display); font-size:1.25rem;
+  font-weight:300;
+}
+@keyframes galleryScroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(calc(-50%)); }
+}
+
+/* ─── AMENITIES ───────────────────────────────────────── */
+#amenities { background: var(--warm-white); }
+.amenities-grid {
+  display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; margin-top:4rem;
+}
+.amenity-card {
+  padding:3rem 2.5rem; border-radius:20px;
+  background: var(--cream); border:1px solid var(--beige);
+  cursor:none; position:relative; overflow:hidden;
+  transition: transform 0.5s var(--ease-out), box-shadow 0.5s, border-color 0.3s;
+}
+.amenity-card::before {
+  content:''; position:absolute; inset:0; border-radius:20px;
+  background: linear-gradient(135deg, rgba(200,169,110,0.06), transparent);
+  opacity:0; transition: opacity 0.4s;
+}
+.amenity-card:hover::before { opacity:1; }
+.amenity-card:hover {
+  transform:translateY(-6px);
+  box-shadow:0 24px 50px rgba(44,36,24,0.1);
+  border-color: rgba(200,169,110,0.3);
+}
+.amenity-icon {
+  width:52px; height:52px; background: linear-gradient(135deg, var(--beige), var(--sand));
+  border-radius:14px; display:flex; align-items:center; justify-content:center;
+  margin-bottom:1.8rem; font-size:1.4rem;
+  transition: transform 0.4s var(--ease-out);
+}
+.amenity-card:hover .amenity-icon { transform:scale(1.1) rotate(-5deg); }
+.amenity-name { font-family: var(--font-display); font-size:1.4rem; color: var(--dark); margin-bottom:0.6rem; }
+.amenity-desc { font-size:0.78rem; color: var(--muted); line-height:1.75; }
+
+/* ─── EXPERIENCE ──────────────────────────────────────── */
+#experience {
+  background: var(--dark); color: var(--cream); position:relative; overflow:hidden;
+}
+.exp-bg-orb {
+  position:absolute; width:700px; height:700px; border-radius:50%;
+  top:-200px; right:-200px; filter:blur(100px);
+  background: radial-gradient(circle, rgba(200,169,110,0.12) 0%, transparent 70%);
+}
+.experience-grid { display:grid; grid-template-columns:1fr 1fr; gap:8rem; align-items:center; }
+.exp-text .section-eyebrow { color: var(--gold-light); }
+.exp-text .section-eyebrow::before { background: var(--gold-light); }
+.exp-text .section-title { color: var(--cream); }
+.exp-text .section-title em { color: var(--gold-light); }
+.exp-text .section-lead { color: rgba(250,247,242,0.5); max-width:100%; }
+.exp-list { margin-top:3rem; display:flex; flex-direction:column; gap:0; }
+.exp-item {
+  padding:1.8rem 0; border-bottom:1px solid rgba(200,169,110,0.12);
+  display:flex; gap:2rem; align-items:center; cursor:none;
+  transition: padding-left 0.4s var(--ease-smooth);
+}
+.exp-item:hover { padding-left:0.8rem; }
+.exp-num { font-family: var(--font-display); font-size:1.8rem; color: rgba(200,169,110,0.3); min-width:2.5rem; }
+.exp-info h4 { font-family: var(--font-display); font-size:1.2rem; color: var(--cream); margin-bottom:0.3rem; }
+.exp-info p { font-size:0.75rem; color: rgba(250,247,242,0.4); }
+.exp-visual {
+  position:relative; height:580px;
+}
+.exp-card-large {
+  position:absolute; right:0; top:0; width:85%; height:85%;
+  background: linear-gradient(160deg, #5c4433, #C8A96E);
+  border-radius:24px; overflow:hidden;
+}
+.exp-card-small {
+  position:absolute; left:0; bottom:0; width:55%; height:42%;
+  background: rgba(200,169,110,0.1); border:1px solid rgba(200,169,110,0.2);
+  border-radius:20px; backdrop-filter:blur(10px);
+  display:flex; flex-direction:column; justify-content:center; padding:2rem;
+  gap:0.4rem;
+}
+.exp-badge { font-family: var(--font-display); font-size:2.5rem; color: var(--gold-light); }
+.exp-badge-text { font-size:0.6rem; letter-spacing:0.3em; text-transform:uppercase; color: rgba(226,201,144,0.6); }
+
+/* ─── TESTIMONIALS ────────────────────────────────────── */
+#testimonials { background: var(--cream); overflow:hidden; }
+.testimonials-header { text-align:center; margin-bottom:4rem; }
+.testimonials-header .section-eyebrow { justify-content:center; }
+.testimonials-header .section-lead { margin:0 auto; text-align:center; }
+.testimonials-track-wrap { position:relative; }
+.testimonials-track {
+  display:flex; gap:2rem; transition: transform 0.7s var(--ease-out);
+}
+.testimonial-card {
+  flex:0 0 calc(50% - 1rem); background: var(--warm-white);
+  border:1px solid var(--beige); border-radius:20px; padding:3rem;
+}
+.t-stars { color: var(--gold); font-size:0.8rem; letter-spacing:0.1em; margin-bottom:1.5rem; }
+.t-quote { font-family: var(--font-display); font-size:1.25rem; line-height:1.6; color: var(--dark); margin-bottom:2rem; font-style:italic; }
+.t-author { display:flex; align-items:center; gap:1rem; }
+.t-avatar {
+  width:44px; height:44px; border-radius:50%;
+  background: linear-gradient(135deg, var(--brown), var(--gold));
+  display:flex; align-items:center; justify-content:center;
+  font-family: var(--font-display); color: var(--cream); font-size:1.1rem;
+}
+.t-name { font-size:0.78rem; font-weight:500; color: var(--dark); letter-spacing:0.06em; }
+.t-origin { font-size:0.65rem; color: var(--muted); letter-spacing:0.1em; }
+.testimonials-nav { display:flex; gap:1rem; justify-content:center; margin-top:3rem; }
+.t-nav-btn {
+  width:44px; height:44px; border-radius:50%;
+  border:1px solid var(--sand); background:transparent;
+  cursor:none; display:flex; align-items:center; justify-content:center;
+  font-size:1rem; color: var(--brown); transition:all 0.3s;
+}
+.t-nav-btn:hover { background: var(--gold); border-color: var(--gold); color: var(--dark); }
+
+/* ─── BOOKING ─────────────────────────────────────────── */
+#booking {
+  background: linear-gradient(135deg, var(--dark) 0%, #3d2f1e 100%);
+  color: var(--cream); position:relative; overflow:hidden;
+  padding:9rem 0;
+}
+.booking-bg {
+  position:absolute; inset:0;
+  background-image:
+    radial-gradient(ellipse at 20% 50%, rgba(200,169,110,0.1) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 20%, rgba(139,115,85,0.12) 0%, transparent 50%);
+}
+.booking-inner { text-align:center; position:relative; z-index:1; }
+.booking-inner .section-eyebrow { justify-content:center; color: var(--gold-light); }
+.booking-inner .section-eyebrow::before { background: var(--gold-light); }
+.booking-inner .section-title { color: var(--cream); }
+.booking-inner .section-title em { color: var(--gold-light); }
+.booking-form {
+  margin-top:4rem;
+  background: rgba(253,251,248,0.06); border:1px solid rgba(200,169,110,0.2);
+  backdrop-filter:blur(20px); border-radius:24px;
+  padding:3rem; display:grid;
+  grid-template-columns:1fr 1fr 1fr 1fr auto; gap:1rem; align-items:end;
+  max-width:960px; margin:4rem auto 0;
+}
+.form-group { display:flex; flex-direction:column; gap:0.6rem; }
+.form-group label { font-size:0.55rem; letter-spacing:0.3em; text-transform:uppercase; color: rgba(226,201,144,0.6); }
+.form-group input, .form-group select {
+  background: rgba(253,251,248,0.08); border:1px solid rgba(200,169,110,0.2);
+  border-radius:10px; padding:0.9rem 1.2rem; color: var(--cream);
+  font-family: var(--font-body); font-size:0.82rem; outline:none;
+  transition: border-color 0.3s, background 0.3s;
+  cursor:none;
+}
+.form-group input::placeholder { color: rgba(250,247,242,0.3); }
+.form-group input:focus { border-color: var(--gold); background: rgba(200,169,110,0.08); }
+.form-group select option { background: var(--dark); }
+.btn-book {
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  color: var(--dark); border:none; border-radius:12px;
+  padding:0.95rem 2.2rem; font-family: var(--font-body);
+  font-size:0.7rem; letter-spacing:0.2em; text-transform:uppercase;
+  cursor:none; white-space:nowrap;
+  transition: transform 0.3s var(--ease-out), box-shadow 0.3s;
+}
+.btn-book:hover { transform:translateY(-2px); box-shadow:0 12px 30px rgba(200,169,110,0.3); }
+
+/* ─── FAQ ─────────────────────────────────────────────── */
+#faq { background: var(--warm-white); }
+.faq-inner { display:grid; grid-template-columns:1fr 1.5fr; gap:6rem; align-items:start; }
+.faq-list { display:flex; flex-direction:column; gap:0; }
+.faq-item { border-bottom:1px solid var(--beige); }
+.faq-q {
+  width:100%; display:flex; justify-content:space-between; align-items:center;
+  padding:1.6rem 0; background:none; border:none; cursor:none; text-align:left;
+  font-family: var(--font-display); font-size:1.15rem; color: var(--dark);
+  transition: color 0.3s;
+}
+.faq-q:hover { color: var(--brown); }
+.faq-icon {
+  width:28px; height:28px; border:1px solid var(--sand); border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:1rem; color: var(--muted); flex-shrink:0;
+  transition: transform 0.4s var(--ease-out), border-color 0.3s, background 0.3s;
+}
+.faq-item.open .faq-icon { transform:rotate(45deg); border-color: var(--gold); background: var(--gold); color: var(--dark); }
+.faq-a {
+  max-height:0; overflow:hidden; transition: max-height 0.5s var(--ease-smooth), padding 0.4s;
+  font-size:0.82rem; color: var(--muted); line-height:1.8;
+}
+.faq-item.open .faq-a { max-height:200px; padding-bottom:1.6rem; }
+
+/* ─── CONTACT ─────────────────────────────────────────── */
+#contact { background: var(--cream); }
+.contact-inner { display:grid; grid-template-columns:1fr 1fr; gap:6rem; align-items:start; }
+.contact-details { display:flex; flex-direction:column; gap:2rem; margin-top:2.5rem; }
+.contact-item h4 { font-size:0.6rem; letter-spacing:0.3em; text-transform:uppercase; color: var(--gold); margin-bottom:0.4rem; }
+.contact-item p { font-size:0.85rem; color: var(--text); line-height:1.7; }
+.contact-map {
+  border-radius:24px; overflow:hidden; height:500px;
+  background: linear-gradient(135deg, #EDE8DE, #D9CEBC);
+  position:relative;
+}
+.map-placeholder {
+  position:absolute; inset:0; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:1rem;
+}
+.map-pin { font-size:3rem; }
+.map-label { font-family: var(--font-display); font-size:1.3rem; color: var(--brown); }
+.map-sub { font-size:0.7rem; color: var(--muted); letter-spacing:0.2em; text-transform:uppercase; }
+.map-grid-lines {
+  position:absolute; inset:0; opacity:0.2;
+  background-image:
+    linear-gradient(var(--sand) 1px, transparent 1px),
+    linear-gradient(90deg, var(--sand) 1px, transparent 1px);
+  background-size:40px 40px;
+}
+
+/* ─── FOOTER ──────────────────────────────────────────── */
+footer {
+  background: var(--dark); color: var(--cream); padding:6rem 0 2rem;
+}
+.footer-top {
+  display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:4rem;
+  padding-bottom:4rem; border-bottom:1px solid rgba(200,169,110,0.12);
+  margin-bottom:2.5rem;
+}
+.footer-brand .nav-logo { font-size:1.8rem; color: var(--cream); display:block; margin-bottom:1rem; }
+.footer-brand p { font-size:0.78rem; color: rgba(250,247,242,0.4); line-height:1.8; max-width:280px; }
+.footer-social { display:flex; gap:1rem; margin-top:1.8rem; }
+.social-btn {
+  width:38px; height:38px; border:1px solid rgba(200,169,110,0.2);
+  border-radius:50%; display:flex; align-items:center; justify-content:center;
+  color: rgba(250,247,242,0.4); font-size:0.8rem; cursor:none; text-decoration:none;
+  transition: border-color 0.3s, color 0.3s, background 0.3s;
+}
+.social-btn:hover { border-color: var(--gold); color: var(--gold); background: rgba(200,169,110,0.08); }
+.footer-col h5 {
+  font-size:0.6rem; letter-spacing:0.35em; text-transform:uppercase;
+  color: var(--gold); margin-bottom:1.5rem;
+}
+.footer-col ul { list-style:none; display:flex; flex-direction:column; gap:0.8rem; }
+.footer-col ul a { font-size:0.78rem; color: rgba(250,247,242,0.4); text-decoration:none; transition: color 0.3s; }
+.footer-col ul a:hover { color: var(--gold-light); }
+.footer-bottom {
+  display:flex; justify-content:space-between; align-items:center;
+  font-size:0.65rem; color: rgba(250,247,242,0.25); letter-spacing:0.06em;
+}
+
+/* ─── FLOATING BOOKING BTN ────────────────────────────── */
+#float-btn {
+  position:fixed; bottom:2.5rem; right:2.5rem; z-index:900;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  color: var(--dark); border:none; border-radius:50px;
+  padding:0.85rem 1.8rem; font-family: var(--font-body);
+  font-size:0.65rem; letter-spacing:0.2em; text-transform:uppercase;
+  cursor:none; display:flex; align-items:center; gap:0.6rem;
+  box-shadow:0 8px 32px rgba(200,169,110,0.4);
+  transform:translateY(100px); opacity:0;
+  transition: transform 0.5s var(--ease-out), opacity 0.5s, box-shadow 0.3s;
+}
+#float-btn.visible { transform:translateY(0); opacity:1; }
+#float-btn:hover { box-shadow:0 16px 40px rgba(200,169,110,0.5); transform:translateY(-2px); }
+#float-btn .dot { width:8px; height:8px; background: var(--dark); border-radius:50%; animation: pulse 2s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.4)} }
+
+/* ─── SCROLL ANIMATIONS ───────────────────────────────── */
+.reveal { opacity:0; transform:translateY(40px); transition:opacity 0.8s var(--ease-out), transform 0.8s var(--ease-out); }
+.reveal.visible { opacity:1; transform:none; }
+.reveal-left { opacity:0; transform:translateX(-40px); transition:opacity 0.8s var(--ease-out), transform 0.8s var(--ease-out); }
+.reveal-left.visible { opacity:1; transform:none; }
+.reveal-right { opacity:0; transform:translateX(40px); transition:opacity 0.8s var(--ease-out), transform 0.8s var(--ease-out); }
+.reveal-right.visible { opacity:1; transform:none; }
+.stagger-1 { transition-delay:0.1s !important; }
+.stagger-2 { transition-delay:0.2s !important; }
+.stagger-3 { transition-delay:0.3s !important; }
+.stagger-4 { transition-delay:0.4s !important; }
+.stagger-5 { transition-delay:0.5s !important; }
+.stagger-6 { transition-delay:0.6s !important; }
+
+/* ─── MOBILE ──────────────────────────────────────────── */
+@media(max-width:900px){
+  nav { padding:1.4rem 2rem; }
+  nav.scrolled { padding:1rem 2rem; }
+  .nav-links { display:none; }
+  .nav-hamburger { display:flex; }
+  .container { padding:0 2rem; }
+  .about-inner,
+  .experience-grid,
+  .faq-inner,
+  .contact-inner,
+  .footer-top { grid-template-columns:1fr; gap:3rem; }
+  .rooms-grid { grid-template-columns:1fr; }
+  .room-card.featured { grid-row:auto; }
+  .amenities-grid { grid-template-columns:1fr; }
+  .booking-form { grid-template-columns:1fr 1fr; }
+  .hero-stats { display:none; }
+  .testimonial-card { flex:0 0 calc(90%); }
+  .footer-top { grid-template-columns:1fr 1fr; }
+  body { cursor:auto; }
+  #cursor, #cursor-ring { display:none; }
+}
+@media(max-width:600px){
+  .booking-form { grid-template-columns:1fr; }
+  .footer-top { grid-template-columns:1fr; }
+  .hero-title { font-size:clamp(3rem,14vw,5rem); }
+  section { padding:5rem 0; }
+}
+</style>
+</head>
+<body>
+
+<!-- CURSOR -->
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-logo">AURELIUS</div>
+  <div class="loader-line"></div>
+  <div class="loader-sub">Crafting your experience</div>
+  <div class="loader-counter" id="loader-counter">0</div>
+</div>
+
+<!-- FLOAT BTN -->
+<button id="float-btn" onclick="document.querySelector('#booking').scrollIntoView({behavior:'smooth'})">
+  <span class="dot"></span> Reserve Now
+</button>
+
+<!-- NAV -->
+<nav id="navbar">
+  <a href="#" class="nav-logo">AURE<span>·</span>LIUS</a>
+  <ul class="nav-links">
+    <li><a href="#rooms">Rooms</a></li>
+    <li><a href="#amenities">Amenities</a></li>
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#gallery">Gallery</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="#booking" class="nav-cta">Reserve</a></li>
+  </ul>
+  <div class="nav-hamburger" id="hamburger">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid-overlay"></div>
+  <div class="hero-orb hero-orb-1"></div>
+  <div class="hero-orb hero-orb-2"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">Est. 2008 · Maldives</div>
+    <h1 class="hero-title">
+      Where Time<br><em>Dissolves</em>
+    </h1>
+    <p class="hero-subtitle">An island sanctuary where every moment is curated, every detail is art, and every breath feels like forever.</p>
+    <div class="hero-btn-group">
+      <a href="#rooms" class="btn-primary">Explore Suites</a>
+      <a href="#experience" class="btn-outline">Watch Film</a>
+    </div>
+  </div>
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    Scroll
+  </div>
+  <div class="hero-stats">
+    <div class="stat">
+      <div class="stat-num">47</div>
+      <div class="stat-label">Private Villas</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">5★</div>
+      <div class="stat-label">Forbes Rating</div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="container">
+    <div class="about-inner">
+      <div class="about-text reveal-left">
+        <div class="section-eyebrow">Our Philosophy</div>
+        <h2 class="section-title">Luxury is a<br><em>state of mind</em></h2>
+        <p class="section-lead">At Aurelius, we believe true luxury isn't measured in thread counts or starred restaurants — it's found in the silence between waves, the warmth of candlelight at dusk, and the quiet knowledge that nothing is left to chance.</p>
+        <br><br>
+        <p class="section-lead">Since 2008, we have been the world's most awarded private island retreat — a place where time slows and the soul remembers what rest truly feels like.</p>
+      </div>
+      <div class="about-visual reveal-right">
+        <div class="about-card about-card-main">
+          <div class="about-quote">"The most beautiful place I have ever experienced in 40 years of travel."</div>
+        </div>
+        <div class="about-card about-card-accent">
+          <div class="about-award">#1</div>
+          <div class="about-award-label">World's Best Island Resort · Condé Nast 2024</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ROOMS -->
+<section id="rooms">
+  <div class="container">
+    <div class="rooms-header">
+      <div>
+        <div class="section-eyebrow reveal">Accommodations</div>
+        <h2 class="section-title reveal">Private <em>Sanctuaries</em></h2>
+      </div>
+      <p class="section-lead reveal" style="max-width:280px;text-align:right">Each villa is a universe unto itself — a private dialogue between architecture and ocean.</p>
+    </div>
+    <div class="rooms-grid">
+      <div class="room-card featured reveal stagger-1">
+        <div class="room-visual">
+          <div class="room-pattern"></div>
+          <div class="room-overlay"></div>
+          <div class="room-tag">Most Loved</div>
+          <div class="room-price">from $2,400 <span>/night</span></div>
+        </div>
+        <div class="room-info">
+          <div class="room-name">Ocean Pavilion Suite</div>
+          <p class="room-desc">Suspended over the lagoon on hand-carved stilts, this 280m² suite offers uninterrupted views of the Indian Ocean from every vantage — including your private infinity plunge pool.</p>
+          <div class="room-features">
+            <span class="room-feature">280 m²</span>
+            <span class="room-feature">Private Pool</span>
+            <span class="room-feature">Ocean View</span>
+            <span class="room-feature">Butler Service</span>
+          </div>
+        </div>
+      </div>
+      <div class="room-card reveal stagger-2">
+        <div class="room-visual" style="height:200px;background:linear-gradient(135deg,#5c4433,#8B7355)">
+          <div class="room-overlay"></div>
+          <div class="room-tag">Garden</div>
+          <div class="room-price">$890 <span>/night</span></div>
+        </div>
+        <div class="room-info">
+          <div class="room-name">Jungle Garden Villa</div>
+          <p class="room-desc">Nestled among ancient palms, where tropical birdsong replaces your alarm clock.</p>
+          <div class="room-features">
+            <span class="room-feature">160 m²</span>
+            <span class="room-feature">Garden Pool</span>
+          </div>
+        </div>
+      </div>
+      <div class="room-card reveal stagger-3">
+        <div class="room-visual" style="height:200px;background:linear-gradient(135deg,#3d2f1e,#C8A96E)">
+          <div class="room-overlay"></div>
+          <div class="room-tag">Beach</div>
+          <div class="room-price">$1,200 <span>/night</span></div>
+        </div>
+        <div class="room-info">
+          <div class="room-name">Beach Grand Suite</div>
+          <p class="room-desc">Steps from the water, with direct beach access and an open-air bathroom under the stars.</p>
+          <div class="room-features">
+            <span class="room-feature">200 m²</span>
+            <span class="room-feature">Beach Front</span>
+          </div>
+        </div>
+      </div>
+      <div class="room-card reveal stagger-4" style="grid-column:2/-1">
+        <div class="room-visual" style="height:180px;background:linear-gradient(135deg,#2C2418,#8B7355)">
+          <div class="room-overlay"></div>
+          <div class="room-tag">Premium</div>
+          <div class="room-price">$3,800 <span>/night</span></div>
+        </div>
+        <div class="room-info">
+          <div class="room-name">The Aurelius Residence</div>
+          <p class="room-desc">Our crown jewel. A 3-bedroom private estate with dedicated staff, a 25m pool, and your own private pontoon boat.</p>
+          <div class="room-features">
+            <span class="room-feature">680 m²</span>
+            <span class="room-feature">3 Bedrooms</span>
+            <span class="room-feature">Private Pontoon</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section id="gallery" style="padding:7rem 0; overflow:hidden;">
+  <div class="container">
+    <div class="gallery-heading">
+      <div class="section-eyebrow reveal" style="justify-content:center">The Island</div>
+      <h2 class="section-title reveal">A world apart</h2>
+      <p class="section-lead reveal">Every corner of Aurelius is a frame-worthy moment. Hover to pause your journey.</p>
+    </div>
+  </div>
+  <div style="overflow:hidden; margin-top:3rem;">
+    <div class="gallery-track">
+      <div class="gallery-cell"><div class="gallery-cell-inner"><div class="gallery-label">The Lagoon</div></div></div>
+      <div class="gallery-cell" style="height:320px;margin-top:80px;"><div class="gallery-cell-inner"><div class="gallery-label">Infinity Pool</div></div></div>
+      <div class="gallery-cell"><div class="gallery-cell-inner"><div class="gallery-label">Coral Garden</div></div></div>
+      <div class="gallery-cell" style="height:360px;margin-top:40px;"><div class="gallery-cell-inner"><div class="gallery-label">The Spa Sanctuary</div></div></div>
+      <div class="gallery-cell"><div class="gallery-cell-inner"><div class="gallery-label">Overwater Dining</div></div></div>
+      <div class="gallery-cell" style="height:280px;margin-top:100px;"><div class="gallery-cell-inner"><div class="gallery-label">Sunset Deck</div></div></div>
+      <div class="gallery-cell"><div class="gallery-cell-inner"><div class="gallery-label">The Lagoon</div></div></div>
+      <div class="gallery-cell" style="height:320px;margin-top:80px;"><div class="gallery-cell-inner"><div class="gallery-label">Infinity Pool</div></div></div>
+      <div class="gallery-cell"><div class="gallery-cell-inner"><div class="gallery-label">Coral Garden</div></div></div>
+      <div class="gallery-cell" style="height:360px;margin-top:40px;"><div class="gallery-cell-inner"><div class="gallery-label">The Spa Sanctuary</div></div></div>
+      <div class="gallery-cell"><div class="gallery-cell-inner"><div class="gallery-label">Overwater Dining</div></div></div>
+      <div class="gallery-cell" style="height:280px;margin-top:100px;"><div class="gallery-cell-inner"><div class="gallery-label">Sunset Deck</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- AMENITIES -->
+<section id="amenities">
+  <div class="container">
+    <div style="max-width:600px; margin:0 auto; text-align:center; margin-bottom:1rem;">
+      <div class="section-eyebrow reveal" style="justify-content:center">World-Class</div>
+      <h2 class="section-title reveal">Every <em>indulgence</em>,<br>already here</h2>
+      <p class="section-lead reveal" style="margin:0 auto; text-align:center">From sunrise yoga to midnight stargazing, we have curated a universe of experiences that need no itinerary.</p>
+    </div>
+    <div class="amenities-grid">
+      <div class="amenity-card reveal stagger-1">
+        <div class="amenity-icon">🌊</div>
+        <div class="amenity-name">Overwater Spa</div>
+        <p class="amenity-desc">Six treatment pavilions suspended over the ocean. Signature rituals inspired by ancient Maldivian healing traditions, delivered by master therapists.</p>
+      </div>
+      <div class="amenity-card reveal stagger-2">
+        <div class="amenity-icon">🍽️</div>
+        <div class="amenity-name">5 Dining Concepts</div>
+        <p class="amenity-desc">From the underwater restaurant Abyssal to the cliff-top grill Ember, each dining experience is a culinary odyssey designed by Michelin-starred chefs.</p>
+      </div>
+      <div class="amenity-card reveal stagger-3">
+        <div class="amenity-icon">🤿</div>
+        <div class="amenity-name">Marine Discovery</div>
+        <p class="amenity-desc">Private dive masters, submarine excursions, and a dedicated marine biology program allow you to explore a living coral reef that stretches for kilometres.</p>
+      </div>
+      <div class="amenity-card reveal stagger-4">
+        <div class="amenity-icon">🧘</div>
+        <div class="amenity-name">Sunrise Wellness</div>
+        <p class="amenity-desc">Daily yoga and meditation with a resident yogi, personalized nutrition plans, and a fully equipped wellness centre with ocean panoramas.</p>
+      </div>
+      <div class="amenity-card reveal stagger-5">
+        <div class="amenity-icon">⚓</div>
+        <div class="amenity-name">Private Yacht Club</div>
+        <p class="amenity-desc">A fleet of 12 private vessels — from traditional dhonis to luxury catamarans — available for exclusive island-hopping, sunset cruises, and fishing adventures.</p>
+      </div>
+      <div class="amenity-card reveal stagger-6">
+        <div class="amenity-icon">✦</div>
+        <div class="amenity-name">Observatory & Stargazing</div>
+        <p class="amenity-desc">Our resident astronomer hosts private stargazing sessions from our rooftop observatory. Experience the Milky Way as you've never seen it before.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERIENCE -->
+<section id="experience">
+  <div class="exp-bg-orb"></div>
+  <div class="container">
+    <div class="experience-grid">
+      <div class="exp-text reveal-left">
+        <div class="section-eyebrow">Curated Life</div>
+        <h2 class="section-title">Days that<br><em>feel eternal</em></h2>
+        <p class="section-lead">We believe in the art of doing nothing — and the luxury of doing everything. Your stay is a blank canvas; our team are the invisible brushstrokes.</p>
+        <div class="exp-list">
+          <div class="exp-item"><div class="exp-num">01</div><div class="exp-info"><h4>Private Island Picnics</h4><p>Helicopter drop on a deserted sandbar with curated food and wine</p></div></div>
+          <div class="exp-item"><div class="exp-num">02</div><div class="exp-info"><h4>Underwater Proposal Suite</h4><p>Our team arranges the unforgettable moment you've been imagining</p></div></div>
+          <div class="exp-item"><div class="exp-num">03</div><div class="exp-info"><h4>Chef's Table at Sea</h4><p>A private floating dinner for two, prepared tableside by your chef</p></div></div>
+          <div class="exp-item"><div class="exp-num">04</div><div class="exp-info"><h4>Bioluminescence Night Swim</h4><p>Guided night kayaking through glowing plankton lagoons</p></div></div>
+          <div class="exp-item"><div class="exp-num">05</div><div class="exp-info"><h4>Sunrise Dolphin Cruise</h4><p>Daily encounters with spinner dolphins in their natural habitat</p></div></div>
+        </div>
+      </div>
+      <div class="exp-visual reveal-right">
+        <div class="exp-card-large">
+          <div style="position:absolute;inset:0;background:linear-gradient(160deg,#5c4433,#C8A96E);display:flex;align-items:flex-end;padding:2.5rem;">
+            <div style="font-family:var(--font-display);color:rgba(250,247,242,0.7);font-style:italic;font-size:1.1rem;">"Every day here is the best day of my life."</div>
+          </div>
+        </div>
+        <div class="exp-card-small">
+          <div class="exp-badge">23K+</div>
+          <div class="exp-badge-text">Five-Star Reviews</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <div class="container">
+    <div class="testimonials-header">
+      <div class="section-eyebrow reveal">Voices</div>
+      <h2 class="section-title reveal">What guests <em>remember</em></h2>
+      <p class="section-lead reveal">Words from the hearts of those who have experienced Aurelius — and can never stop talking about it.</p>
+    </div>
+    <div class="testimonials-track-wrap reveal">
+      <div class="testimonials-track" id="t-track">
+        <div class="testimonial-card">
+          <div class="t-stars">★★★★★</div>
+          <p class="t-quote">"We have stayed at every major luxury resort in the world. Nothing — absolutely nothing — comes close to Aurelius. It ruined us for every other hotel. We return every anniversary and it never gets less magical."</p>
+          <div class="t-author">
+            <div class="t-avatar">S</div>
+            <div><div class="t-name">Sophia Hartmann</div><div class="t-origin">Berlin, Germany · 4th Stay</div></div>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <div class="t-stars">★★★★★</div>
+          <p class="t-quote">"The butler remembered our daughter's name from two years prior. That is the level of humanity woven into this place. It's not service — it's genuine care, and you feel it in every interaction."</p>
+          <div class="t-author">
+            <div class="t-avatar">J</div>
+            <div><div class="t-name">James & Clara Whitmore</div><div class="t-origin">London, UK · 2nd Stay</div></div>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <div class="t-stars">★★★★★</div>
+          <p class="t-quote">"I came here for a honeymoon and I left a different person. The silence of the island, the warmth of the people, the extraordinary food — it recalibrated something deep inside me."</p>
+          <div class="t-author">
+            <div class="t-avatar">A</div>
+            <div><div class="t-name">Amara Osei</div><div class="t-origin">Lagos, Nigeria · Honeymoon</div></div>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <div class="t-stars">★★★★★</div>
+          <p class="t-quote">"As a travel journalist who has visited 140+ countries, I can say with complete confidence: Aurelius is the finest accommodation on Earth. The underwater dining experience alone deserves a Michelin star."</p>
+          <div class="t-author">
+            <div class="t-avatar">R</div>
+            <div><div class="t-name">Rafael Monteiro</div><div class="t-origin">São Paulo, Brazil · Travel Writer</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonials-nav">
+      <button class="t-nav-btn" id="t-prev">←</button>
+      <button class="t-nav-btn" id="t-next">→</button>
+    </div>
+  </div>
+</section>
+
+<!-- BOOKING -->
+<section id="booking">
+  <div class="booking-bg"></div>
+  <div class="container">
+    <div class="booking-inner">
+      <div class="section-eyebrow reveal">Reservations</div>
+      <h2 class="section-title reveal">Begin your <em>journey</em></h2>
+      <p class="section-lead reveal" style="margin:0 auto;text-align:center;color:rgba(250,247,242,0.5)">Reserve your private paradise. Our concierge team will personally curate your entire stay before you arrive.</p>
+      <div class="booking-form reveal">
+        <div class="form-group">
+          <label>Arrival</label>
+          <input type="date" placeholder="Check In">
+        </div>
+        <div class="form-group">
+          <label>Departure</label>
+          <input type="date" placeholder="Check Out">
+        </div>
+        <div class="form-group">
+          <label>Guests</label>
+          <select>
+            <option>1 Guest</option>
+            <option>2 Guests</option>
+            <option>3 Guests</option>
+            <option>4+ Guests</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Villa Type</label>
+          <select>
+            <option>Any Villa</option>
+            <option>Ocean Pavilion</option>
+            <option>Beach Suite</option>
+            <option>Garden Villa</option>
+            <option>The Residence</option>
+          </select>
+        </div>
+        <button class="btn-book">Check Availability</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="container">
+    <div class="faq-inner">
+      <div>
+        <div class="section-eyebrow reveal">Common Questions</div>
+        <h2 class="section-title reveal">Everything<br>you need to<br><em>know</em></h2>
+        <p class="section-lead reveal" style="margin-top:1rem">Our team is available 24/7 if your question is more personal. We love to talk about Aurelius.</p>
+        <br>
+        <a href="#contact" class="btn-primary reveal" style="margin-top:1rem;display:inline-block">Contact Concierge</a>
+      </div>
+      <div class="faq-list reveal">
+        <div class="faq-item">
+          <button class="faq-q">How do I get to Aurelius? <span class="faq-icon">+</span></button>
+          <div class="faq-a">Aurelius is located in the South Malé Atoll, accessible by a 25-minute seaplane transfer or a 45-minute private speedboat from Velana International Airport. We coordinate all transfers as part of your arrival experience.</div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">What is included in the room rate? <span class="faq-icon">+</span></button>
+          <div class="faq-a">All villa rates include daily breakfast, non-motorized water sports, snorkelling equipment, Wi-Fi, and 24-hour butler service. Dining, spa treatments, and excursions are additional.</div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">Do you offer honeymoon packages? <span class="faq-icon">+</span></button>
+          <div class="faq-a">We have curated bespoke honeymoon journeys that can include underwater proposals, private sandbank dinners, couples' spa rituals, and a complimentary villa upgrade subject to availability.</div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">What is your cancellation policy? <span class="faq-icon">+</span></button>
+          <div class="faq-a">We offer free cancellation up to 30 days before arrival. Cancellations within 14 days are subject to a one-night charge. We recommend travel insurance for full protection.</div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">Is Aurelius suitable for families? <span class="faq-icon">+</span></button>
+          <div class="faq-a">Absolutely. Our Little Explorers program for children aged 4–12 offers marine biology sessions, treasure hunts, and supervised water sports. The Aurelius Residence is ideal for families seeking complete privacy.</div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">Do you have a minimum stay? <span class="faq-icon">+</span></button>
+          <div class="faq-a">We recommend a minimum of 5 nights to truly absorb the rhythm of island life. For The Aurelius Residence, a 7-night minimum applies during peak season (December–April).</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="container">
+    <div class="contact-inner">
+      <div>
+        <div class="section-eyebrow reveal">Reach Us</div>
+        <h2 class="section-title reveal">We are<br><em>always here</em></h2>
+        <p class="section-lead reveal">Our concierge team responds within one hour — any hour, any timezone. No request is too small, no dream too large.</p>
+        <div class="contact-details">
+          <div class="contact-item reveal stagger-1">
+            <h4>Reservations & Enquiries</h4>
+            <p>reservations@aurelius.com<br>+960 300 0001</p>
+          </div>
+          <div class="contact-item reveal stagger-2">
+            <h4>Concierge</h4>
+            <p>concierge@aurelius.com<br>Available 24 hours, 7 days</p>
+          </div>
+          <div class="contact-item reveal stagger-3">
+            <h4>Location</h4>
+            <p>South Malé Atoll, Maldives<br>25 min seaplane from Malé</p>
+          </div>
+        </div>
+      </div>
+      <div class="contact-map reveal-right">
+        <div class="map-grid-lines"></div>
+        <div class="map-placeholder">
+          <div class="map-pin">📍</div>
+          <div class="map-label">Aurelius Island</div>
+          <div class="map-sub">South Malé Atoll · Maldives</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="#" class="nav-logo">AURE<span style="color:var(--gold)">·</span>LIUS</a>
+        <p>The world's most intimate luxury island retreat. Where the ocean meets eternity and every guest is a beloved guest.</p>
+        <div class="footer-social">
+          <a href="#" class="social-btn">in</a>
+          <a href="#" class="social-btn">ig</a>
+          <a href="#" class="social-btn">fb</a>
+          <a href="#" class="social-btn">tw</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h5>Stay</h5>
+        <ul>
+          <li><a href="#">Ocean Pavilion Suite</a></li>
+          <li><a href="#">Beach Grand Suite</a></li>
+          <li><a href="#">Jungle Garden Villa</a></li>
+          <li><a href="#">The Residence</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Experience</h5>
+        <ul>
+          <li><a href="#">Spa & Wellness</a></li>
+          <li><a href="#">Dining</a></li>
+          <li><a href="#">Dive Centre</a></li>
+          <li><a href="#">Private Yacht</a></li>
+          <li><a href="#">Honeymoon</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Information</h5>
+        <ul>
+          <li><a href="#">Getting Here</a></li>
+          <li><a href="#">Press Room</a></li>
+          <li><a href="#">Awards</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Aurelius Resort & Spa. All rights reserved.</span>
+      <span>Crafted with care · South Malé Atoll, Maldives</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ─── LOADER ────────────────────────────────────────── */
+const loader = document.getElementById('loader');
+const counter = document.getElementById('loader-counter');
+let count = 0;
+const countUp = setInterval(() => {
+  count += Math.floor(Math.random()*12)+3;
+  if(count >= 100){ count = 100; clearInterval(countUp); }
+  counter.textContent = count;
+  if(count === 100) {
+    setTimeout(() => loader.classList.add('hide'), 400);
+  }
+}, 60);
+
+/* ─── CURSOR ────────────────────────────────────────── */
+const cursor = document.getElementById('cursor');
+const ring   = document.getElementById('cursor-ring');
+let mx=0, my=0, rx=0, ry=0;
+document.addEventListener('mousemove', e => { mx=e.clientX; my=e.clientY; });
+(function animCursor(){
+  rx += (mx - rx) * 0.18;
+  ry += (my - ry) * 0.18;
+  cursor.style.transform = `translate(${mx}px,${my}px) translate(-50%,-50%)`;
+  ring.style.transform   = `translate(${rx}px,${ry}px) translate(-50%,-50%)`;
+  requestAnimationFrame(animCursor);
+})();
+
+/* ─── NAVBAR ────────────────────────────────────────── */
+const navbar = document.getElementById('navbar');
+const floatBtn = document.getElementById('float-btn');
+window.addEventListener('scroll', () => {
+  if(window.scrollY > 80) navbar.classList.add('scrolled');
+  else navbar.classList.remove('scrolled');
+  if(window.scrollY > 500) floatBtn.classList.add('visible');
+  else floatBtn.classList.remove('visible');
+});
+
+/* ─── SCROLL REVEAL ─────────────────────────────────── */
+const reveals = document.querySelectorAll('.reveal, .reveal-left, .reveal-right');
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
+reveals.forEach(el => io.observe(el));
+
+/* ─── FAQ ───────────────────────────────────────────── */
+document.querySelectorAll('.faq-q').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const item = btn.parentElement;
+    const wasOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+    if(!wasOpen) item.classList.add('open');
+  });
+});
+
+/* ─── TESTIMONIALS ──────────────────────────────────── */
+const track = document.getElementById('t-track');
+let tIdx = 0;
+const tCards = track.querySelectorAll('.testimonial-card');
+const maxIdx = tCards.length - 2;
+function moveTo(i) {
+  tIdx = Math.max(0, Math.min(i, maxIdx));
+  const cardW = tCards[0].offsetWidth + 32;
+  track.style.transform = `translateX(-${tIdx * cardW}px)`;
+}
+document.getElementById('t-prev').addEventListener('click', () => moveTo(tIdx-1));
+document.getElementById('t-next').addEventListener('click', () => moveTo(tIdx+1));
+
+/* ─── PARALLAX HERO ORBS ────────────────────────────── */
+const orb1 = document.querySelector('.hero-orb-1');
+const orb2 = document.querySelector('.hero-orb-2');
+window.addEventListener('scroll', () => {
+  const y = window.scrollY;
+  if(orb1) orb1.style.transform = `translateY(${y * 0.3}px)`;
+  if(orb2) orb2.style.transform = `translateY(${y * -0.2}px)`;
+});
+
+/* ─── SMOOTH ANCHOR SCROLL ──────────────────────────── */
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const target = document.querySelector(a.getAttribute('href'));
+    if(target){ e.preventDefault(); target.scrollIntoView({behavior:'smooth',block:'start'}); }
+  });
+});
+</script>
+</body>
+</html>
